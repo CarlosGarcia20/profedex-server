@@ -1,35 +1,19 @@
 import express from "express";
-import dotenv from "dotenv";
-import pkg from "pg";
 
-dotenv.config();
-const { Pool } = pkg;
+// Archivos de configuración
+import { PORT } from "./app/config/config.js";
+import { authRouter } from "./app/routes/auth.routes.js";
+import { userRouter } from "./app/routes/users.routes.js";
+
 
 const app = express();
-const port = process.env.PORT || 3000;
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
-  ssl: { rejectUnauthorized: false }
-});
+app.use(express.json());
+app.disable('x-powered-by')
 
-console.log("Hola Mundo");
+app.use('/auth', authRouter)
+app.use('/users', userRouter);
 
-
-app.get("/test-db", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT NOW()");
-    res.send(`Conexión exitosa a PostgreSQL! Fecha del servidor: ${result.rows[0].now}`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Error conectando a la base de datos");
-  }
-});
-
-app.listen(port, () => {
-  console.log(`Servidor corriendo en http://localhost:${port}`);
+app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
