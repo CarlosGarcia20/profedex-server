@@ -2,6 +2,7 @@ import zod from 'zod';
 
 const registerSchema = zod.object({
     name: zod.string().min(3),
+    group: zod.int64(),
     nickname: zod.string().min(4),
     password: zod.string().min(8),
 });
