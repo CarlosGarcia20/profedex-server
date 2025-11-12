@@ -22,7 +22,8 @@ export class authModel {
                 success: true, 
                 data: {
                     nickname: rows[0].nickname,
-                    name: rows[0].name
+                    name: rows[0].name,
+                    idRol: rows[0].idrol
                 } 
             }
         } catch (error) {
