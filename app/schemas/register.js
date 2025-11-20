@@ -4,6 +4,7 @@ const registerSchema = zod.object({
     name: zod.string().min(3),
     nickname: zod.string().min(4),
     password: zod.string().min(8),
+    idRol: zod.string()
 });
 
 export const validateRegister = (input) => {
