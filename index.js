@@ -8,6 +8,7 @@ import { userRouter } from "./app/routes/users.routes.js";
 
 // Middlewares
 import { corsMiddleware } from "./app/middlewares/cors.js";
+import { adminRouter } from "./app/routes/admin.routes.js";
 
 
 const app = express();
@@ -19,7 +20,7 @@ app.disable('x-powered-by');
 
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
-// app.use('/administrator', administratorRouter);
+app.use('/admin', adminRouter);
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
