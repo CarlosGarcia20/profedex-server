@@ -5,6 +5,12 @@ import { validateUpdateUser } from "../schemas/user-data.js";
 import { validateUUID } from "../schemas/uuid.js";
 import { EncryptionHelper } from "../utils/encryption.helper.js";
 
+const ROLE_IDS = {
+    "ADMIN": 1,
+    "PROFESSOR": 2,
+    "STUDENT": 3
+};
+
 export class adminController {
     static async validateNickname(req, res) {
         try {
@@ -12,7 +18,7 @@ export class adminController {
 
             const result = await validateUniqueNickname(nickname);
 
-             if (!result.success) {
+            if (!result.success) {
                 return res.status(400).json({ message: result.error.message });
             }
 
@@ -32,33 +38,37 @@ export class adminController {
                 })
             }
 
-            const { nickname, name, password, idRol } = registerValidation.data;
+            const data = registerValidation.data;
+            const idRol = ROLE_IDS[data.role];
 
-            const nicknameValidation = await validateUniqueNickname(nickname);
+            const nicknameValidation = await validateUniqueNickname(data.nickname);
             if (!nicknameValidation.success) {
                 return res.status(400).json({ message: nicknameValidation.error.message });
             }
 
-            const hashPassword = await EncryptionHelper.hashPassword(password);
-            
-            const result = await adminModel.createUser({ 
-                name,
-                nickname,
+            const hashPassword = await EncryptionHelper.hashPassword(data.password);
+
+            const userData = {
+                ...data,
                 password: hashPassword,
-                idRol
-            });
+                idRol: idRol
+            }
+
+            const result = await adminModel.createUser({ userData });
 
             if (!result.success) {
                 if (result.type === 'conflict') {
                     return res.status(409).json({ message: result.error });
                 }
-                
+
                 return res.status(500).json({ message: "Error interno al guardar usuario" });
             }
 
             return res.status(201).json({ message: "Usuario creado con éxito" });
-            
+
         } catch (error) {
+            console.log(error);
+
             res.status(500).json({ message: "Internal Server Error" })
         }
     }
@@ -79,7 +89,7 @@ export class adminController {
             res.status(500).json({ message: "Internal Server Error" })
         }
     }
-    
+
     static async updateDataUser(req, res) {
         try {
             const { userId } = req.params;
@@ -107,6 +117,8 @@ export class adminController {
                 return res.status(404).json({ message: result.message });
             }
 
+            if(!resu)
+
             return res.status(200).json({
                 message: result.message,
                 user: result.user
@@ -116,14 +128,14 @@ export class adminController {
             return res.status(500).json({ message: "Internal Server Error" });
         }
     }
-    
+
     static async deleteUser(req, res) {
         try {
             const { userId } = req.params;
 
             const uuidValidation = validateUUID({ userId });
 
-            if(!uuidValidation.success) {
+            if (!uuidValidation.success) {
                 return res.status(400).json({
                     message: JSON.parse(uuidValidation.error.message)
                 });
@@ -131,12 +143,12 @@ export class adminController {
 
             const result = await adminModel.deleteUser({ userId: uuidValidation.data.userId });
 
-            if(!result.success) {
+            if (!result.success) {
                 return res.status(404).json({ message: "El usuario no existe o ya fue eliminado" });
             }
 
-            return res.status(200).json({ message: "Usuario eliminado con éxito "});
-        } catch (error) {            
+            return res.status(200).json({ message: "Usuario eliminado con éxito " });
+        } catch (error) {
             return res.status(500).json({ message: "Internal Server Error" });
         }
     }
