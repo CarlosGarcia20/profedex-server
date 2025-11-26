@@ -41,8 +41,10 @@ export class tokenModel {
     static async revokeToken( token ) {
         try {
             await pool.query(
-                `DELETE FROM refresh_tokens WHERE token = $1`,
-                [token]
+            `
+                DELETE FROM refresh_tokens WHERE token = $1
+            `,
+            [token]
         );
         } catch (error) {
             return { success: false, error }
