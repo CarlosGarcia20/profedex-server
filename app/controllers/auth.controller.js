@@ -1,11 +1,12 @@
-import { token } from "../middlewares/token.js";
+import { tokenManager } from "../utils/tokenManager.js";
 import { authModel } from "../models/auth.models.js";
+import { tokenModel } from "../models/token.model.js";
 import { validateLogin } from "../schemas/auth.js";
 
 export class authController {
     static async login(req, res) {
         try {
-            const authValidation = await validateLogin(req.body);
+            const authValidation = validateLogin(req.body);
 
            if (!authValidation.success) {
                 return res.status(400).json({ message: JSON.parse(authValidation.error.message) });
@@ -15,20 +16,33 @@ export class authController {
 
             const result = await authModel.login({ username, password });
 
-            if(!result.success) return res.status(404).json({ message: result.message });
+            if(!result.success) return res.status(401).json({ message: "Credenciales inválidas" });
 
-            const accessToken = await token.generateToken({ userIdRol: result.data.idRol });
-            const refreshToken = await token.generateRefreshToken({ userIdRol: result.data.idRol });
+            const accessToken = token.generateToken({ 
+                userId: result.data.userId,
+                userIdRol: result.data.idRol 
+            });
+            const refreshToken = token.generateRefreshToken({ userId: result.data.userId });
+            
+            await tokenModel.saveUserToken({
+                userId: result.data.userId,
+                token: refreshToken,
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            });
 
             res.cookie("accessToken", accessToken, {
-                maxAge: 300000,  // 5 Minutos
-                httpOnly: true
-            })
+                maxAge: 5 * 60 * 1000,
+                httpOnly: true,
+                // secure: true,
+                sameSite: 'strict'
+            });
 
             res.cookie("refreshToken", refreshToken, {
-                maxAge: 604800,  // 7 dias
-                httpOnly: true
-            })
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+                httpOnly: true,
+                // secure: true, 
+                sameSite: 'strict'
+            });
 
             return res.status(200).json({
                 message: "Inicio de sesión exitoso",
@@ -36,11 +50,62 @@ export class authController {
                     nickname: result.data.nickname,
                     name: result.data.name
                 }
-            })
-            
+            });
 
         } catch (error) {
             res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+
+    static async logout(req, res) {
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(200).json({ message: "Sesión cerrada" });
+        }
+        
+        await tokenModel.revokeToken(refreshToken);
+
+        res.clearCookie('accessToken', {
+            httpOnly: true,
+            sameSite: 'strict'
+            // secure: true
+        });
+
+        res.clearCookie('refreshToken', {
+            httpOnly: true,
+            sameSite: 'strict'
+            // secure: true
+        });
+        
+        return res.status(200).json({ message: "Sesión cerrada exitosamente" });
+    }
+
+    static async refreshToken(req, res) {
+        try {
+            const { refreshToken } = req.cookies;
+            if (!refreshToken) throw new Error("No token");
+
+            const payload = tokenManager.verifyRefreshToken(refreshToken);
+
+            const dbToken = await tokenModel.findToken({ token: refreshToken });
+            if (!dbToken.success) return res.status(403).json({ message: "Revocado" });
+
+            const newAccessToken = tokenManager.generateToken({ 
+                userId: payload.userId, 
+                role: payload.role 
+            });
+
+            res.cookie("accessToken", newAccessToken, {
+                maxAge: 5 * 60 * 1000,
+                httpOnly: true,
+                // secure: true,
+                sameSite: 'strict'
+            });
+            res.json({ message: "Refrescado" });
+
+        } catch (error) {
+            return res.status(403).json({ message: "Invalido" });
         }
     }
 }

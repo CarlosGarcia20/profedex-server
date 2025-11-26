@@ -45,4 +45,18 @@ export class userModel {
             return { success: false, error: error.message };
         }
     }
+
+    static async getroleIdUser({ userId }) {
+        try {
+            await pool.query(
+                `
+                SELECT idrol FROM users
+                WHERE userid = $1
+                `,
+                [userId]
+            );
+        } catch (error) {
+            return { success: false, error }
+        }
+    }
 }
