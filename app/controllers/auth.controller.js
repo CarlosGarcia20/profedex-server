@@ -18,11 +18,11 @@ export class authController {
 
             if(!result.success) return res.status(401).json({ message: "Credenciales inválidas" });
 
-            const accessToken = token.generateToken({ 
+            const accessToken = tokenManager.generateToken({ 
                 userId: result.data.userId,
                 userIdRol: result.data.idRol 
             });
-            const refreshToken = token.generateRefreshToken({ userId: result.data.userId });
+            const refreshToken = tokenManager.generateRefreshToken({ userId: result.data.userId });
             
             await tokenModel.saveUserToken({
                 userId: result.data.userId,
@@ -58,8 +58,8 @@ export class authController {
     }
 
     static async logout(req, res) {
-        const refreshToken = req.cookies.refreshToken;
-
+        const refreshToken = req.cookies?.refreshToken;
+        
         if (!refreshToken) {
             return res.status(200).json({ message: "Sesión cerrada" });
         }
