@@ -3,6 +3,8 @@ import { authController } from "../controllers/auth.controller.js";
 
 export const authRouter = Router();
 
-authRouter.post('/', authController.login)
+authRouter.post('/', authController.login);
 
-// authRouter.post('/refresh', 'refresh');
+authRouter.post('/logout', authController.logout);
+
+authRouter.get('/refresh', authController.refreshToken);

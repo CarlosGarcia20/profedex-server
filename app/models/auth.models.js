@@ -1,4 +1,3 @@
-import { success } from "zod";
 import pool from "../config/db.js";
 import { EncryptionHelper } from "../utils/encryption.helper.js";
 
@@ -21,6 +20,7 @@ export class authModel {
             return { 
                 success: true, 
                 data: {
+                    userId: rows[0].userid,
                     nickname: rows[0].nickname,
                     name: rows[0].name,
                     idRol: rows[0].idrol
