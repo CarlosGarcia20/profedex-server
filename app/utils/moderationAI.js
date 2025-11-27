@@ -27,7 +27,6 @@ export const checkContentSafety = async (bucketName, imageName) => {
         
         return { isSafe: true };
     } catch (error) {
-        console.error("Error en Rekognition:", error);
         throw new Error("Error al analizar la imagen");
     }
 };

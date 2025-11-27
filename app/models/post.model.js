@@ -1,4 +1,3 @@
-import { success } from "zod";
 import pool from "../config/db.js";
 
 export class postModel {
