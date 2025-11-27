@@ -1,10 +1,24 @@
 import { Router } from "express";
 import { adminController } from "../controllers/admin.controller.js";
+import { requireAuth } from "../middlewares/token.js";
+import { verifyRole } from "../middlewares/roleMiddleware.js";
 
+const ROLES = {
+    ADMIN: '1',       
+    PROFESSOR: '2',
+    STUDENT: '3'
+};
 
 export const adminRouter = Router();
 
-adminRouter.get('/users', /* validacion del token */ adminController.getUsers);
+adminRouter.get(
+    '/users', 
+    [
+        requireAuth, 
+        verifyRole([ROLES.ADMIN])
+    ], 
+    adminController.getUsers
+);
 
 adminRouter.post('/users', /* validacion del token */ adminController.createUser);
 
