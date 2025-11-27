@@ -6,10 +6,11 @@ import cookieParser from "cookie-parser";
 import { PORT } from "./app/config/config.js";
 import { authRouter } from "./app/routes/auth.routes.js";
 import { userRouter } from "./app/routes/users.routes.js";
+import { adminRouter } from "./app/routes/admin.routes.js";
+import { postRouter } from "./app/routes/post.routes.js";
 
 // Middlewares
 import { corsMiddleware } from "./app/middlewares/cors.js";
-import { adminRouter } from "./app/routes/admin.routes.js";
 
 
 const app = express();
@@ -23,6 +24,7 @@ app.disable('x-powered-by');
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/admin', adminRouter);
+app.use('/posts', postRouter);
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
