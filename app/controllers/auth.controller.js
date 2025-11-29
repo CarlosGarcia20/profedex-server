@@ -8,8 +8,11 @@ export class authController {
         try {
             const authValidation = validateLogin(req.body);
 
-           if (!authValidation.success) {
-                return res.status(400).json({ message: JSON.parse(authValidation.error.message) });
+            if (!authValidation.success) {
+                return res.status(400).json({ 
+                    message: "Datos incorrectos", 
+                    errors: authValidation.error.flatten().fieldErrors 
+                });
             }
 
             const { username, password } = authValidation.data;
@@ -22,7 +25,10 @@ export class authController {
                 userId: result.data.userId,
                 userIdRol: result.data.idRol 
             });
-            const refreshToken = tokenManager.generateRefreshToken({ userId: result.data.userId });
+            const refreshToken = tokenManager.generateRefreshToken({ 
+                userId: result.data.userId,
+                userIdRol: result.data.idRol 
+            });
             
             await tokenModel.saveUserToken({
                 userId: result.data.userId,
@@ -34,21 +40,22 @@ export class authController {
                 maxAge: 5 * 60 * 1000,
                 httpOnly: true,
                 // secure: true,
-                sameSite: 'strict'
+                sameSite: 'lax'
             });
 
             res.cookie("refreshToken", refreshToken, {
                 maxAge: 7 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
                 // secure: true, 
-                sameSite: 'strict'
+                sameSite: 'lax'
             });
 
             return res.status(200).json({
                 message: "Inicio de sesión exitoso",
                 user: {
                     nickname: result.data.nickname,
-                    name: result.data.name
+                    name: result.data.name,
+                    idRol: result.data.idRol
                 }
             });
 
@@ -59,7 +66,7 @@ export class authController {
 
     static async logout(req, res) {
         const refreshToken = req.cookies?.refreshToken;
-        
+
         if (!refreshToken) {
             return res.status(200).json({ message: "Sesión cerrada" });
         }
@@ -68,13 +75,13 @@ export class authController {
 
         res.clearCookie('accessToken', {
             httpOnly: true,
-            sameSite: 'strict'
+            sameSite: 'lax'
             // secure: true
         });
 
         res.clearCookie('refreshToken', {
             httpOnly: true,
-            sameSite: 'strict'
+            sameSite: 'lax'
             // secure: true
         });
         
@@ -86,21 +93,23 @@ export class authController {
             const { refreshToken } = req.cookies;
             if (!refreshToken) throw new Error("No token");
 
-            const payload = tokenManager.verifyRefreshToken(refreshToken);
+            const data = tokenManager.verifyRefreshToken(refreshToken);
+
+            console.log(data);
 
             const dbToken = await tokenModel.findToken({ token: refreshToken });
             if (!dbToken.success) return res.status(403).json({ message: "Revocado" });
 
             const newAccessToken = tokenManager.generateToken({ 
-                userId: payload.userId, 
-                role: payload.role 
+                userId: data.userId, 
+                userIdRol: data.userIdRol 
             });
 
             res.cookie("accessToken", newAccessToken, {
                 maxAge: 5 * 60 * 1000,
                 httpOnly: true,
                 // secure: true,
-                sameSite: 'strict'
+                sameSite: 'lax'
             });
             res.json({ message: "Refrescado" });
 

@@ -13,11 +13,12 @@ export class tokenManager {
             }
         );
     }
-
+    
     static generateRefreshToken(userData) {
         return jwt.sign(
             {
-                userId: userData.userId
+                userId: userData.userId,
+                userIdRol: userData.userIdRol
             },
             config.jwtRefreshSecret, {
                 expiresIn: config.jwtRefreshExpiresIn
