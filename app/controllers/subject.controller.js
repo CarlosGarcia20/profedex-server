@@ -5,7 +5,6 @@ export class subjectController {
     static async getSubjects(req, res) {
         try {
             const result = await subjectModel.getSubjects();
-            
             if (!result.success) {
                 return res.status(404).json({ message: "No hay materias registradas" });
             }
@@ -38,7 +37,7 @@ export class subjectController {
         try {
             const subjectValidation = validateSubject(req.body);
 
-            if (!subjectValidation.success) {
+             if (!subjectValidation.success) {
                 return res.status(400).json({ 
                     message: "Datos incorrectos", 
                     errors: subjectValidation.error.flatten().fieldErrors 
@@ -53,7 +52,7 @@ export class subjectController {
                 hours: subjectValidation.data.hours,
                 semester: subjectValidation.data.semester,
                 plan_year: subjectValidation.data.plan_year,
-                major_id: subjectValidation.data.major_id,
+                career_id: subjectValidation.data.career_id,
                 active: subjectValidation.data.active
             });
 
