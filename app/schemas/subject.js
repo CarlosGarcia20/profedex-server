@@ -20,10 +20,10 @@ const subjectSchema = z.object({
         .int("El semestre debe de ser enteros")
         .min(1, { error: "El semestre debe de contener al menos un cáracter" }),
     plan_year: z.coerce.number()
-        .int()
-        .min(1900, "Año muy antiguo")
-        .max(2100, "Año muy lejano"),
-    major_id: z.coerce.number({ error: "El id de la carrera tiene que ser número" })
+           .int()
+           .min(1900, "Año muy antiguo")
+           .max(2100, "Año muy lejano"),
+    career_id: z.coerce.number({ error: "El id de la carrera tiene que ser número" })
         .nonnegative({ error: "El id de la carrera no puede ser negativo" })
         .int("El id de la carrera debe de ser entero")
         .min(1, { error: "El id debe de contener al menos un caracter" }),
