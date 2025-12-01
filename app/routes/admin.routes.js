@@ -6,7 +6,7 @@ import { subjectController } from "../controllers/subject.controller.js";
 import { majorController } from "../controllers/major.controller.js";
 import { groupController } from "../controllers/group.controller.js";
 import { userController } from "../controllers/user.controller.js";
-
+import { adminController } from "../controllers/admin.controller.js";
 
 const ROLES = {
     ADMIN: '1',       
@@ -15,6 +15,9 @@ const ROLES = {
 };
 
 export const adminRouter = Router();
+
+/* Roles */
+adminRouter.get('/roles', adminController.getRoles);2
 
 /* Usuarios */
 adminRouter.get(
