@@ -38,7 +38,7 @@ export class subjectController {
         try {
             const subjectValidation = validateSubject(req.body);
 
-             if (!subjectValidation.success) {
+            if (!subjectValidation.success) {
                 return res.status(400).json({ 
                     message: "Datos incorrectos", 
                     errors: subjectValidation.error.flatten().fieldErrors 
@@ -53,7 +53,7 @@ export class subjectController {
                 hours: subjectValidation.data.hours,
                 semester: subjectValidation.data.semester,
                 plan_year: subjectValidation.data.plan_year,
-                career_id: subjectValidation.data.career_id,
+                major_id: subjectValidation.data.major_id,
                 active: subjectValidation.data.active
             });
 
@@ -67,11 +67,20 @@ export class subjectController {
         }
     }
     
-    static async updateSubjetc(req, res) {
+    static async updateSubject(req, res) {
         try {
             const { subjectId } = req.params;
 
-            const result = await subjectModel.updateSubjetc(subjectId);
+            const subjectValidation = validateSubject(req.body);
+
+            if (!subjectValidation.success) {
+                return res.status(400).json({ 
+                    message: "Datos incorrectos", 
+                    errors: subjectValidation.error.flatten().fieldErrors 
+                });
+            }
+
+            const result = await subjectModel.updateSubject({ subjectId, data: subjectValidation.data });
 
             if (!result.success) {
                 return res.status(404).json({ 

@@ -7,9 +7,9 @@ export class subjectModel {
             const { rows } = await pool.query(
                 `SELECT 
                 subjects.*,
-                careers.name AS Carrera
+                majors.name AS major
                 FROM subjects
-                INNER JOIN careers ON subjects.career_id = careers.major_id
+                INNER JOIN majors ON subjects.major_id = majors.major_id
                 ORDER BY subjects.code ASC
                 `
             );
@@ -22,11 +22,11 @@ export class subjectModel {
         }
     }
     
-    static async createSubject({ name, code, description, credits, hours, semester, plan_year, career_id, active }) {
+    static async createSubject({ name, code, description, credits, hours, semester, plan_year, major_id, active }) {
         try {
             const row = await pool.query(
                 `INSERT INTO 
-                    subjects (name, code, description, credits, hours, semester, plan_year, career_id, active)
+                    subjects (name, code, description, credits, hours, semester, plan_year, major_id, active)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                 `,
                 [
@@ -37,7 +37,7 @@ export class subjectModel {
                     hours,
                     semester,
                     plan_year,
-                    career_id,
+                    major_id,
                     active
                 ]
             );
@@ -52,10 +52,10 @@ export class subjectModel {
         try {
             const { rows } = await pool.query(
                 `SELECT 
-                    careers.name AS carrera,
+                    majors.name AS major,
                     subjects.*
                 FROM subjects
-                INNER JOIN careers ON subjects.career_id = careers.major_id
+                INNER JOIN majors ON subjects.major_id = majors.major_id
                 WHERE subjects.subject_id = $1`,
                 [subjectId]
             );
@@ -70,8 +70,45 @@ export class subjectModel {
         }
     }
     
-    static async updateSubject(subjectId) {
-        
+    static async updateSubject({ subjectId, data }) {
+        try {
+            const { rows, rowCount } = await pool.query(
+                `UPDATE subjects
+                SET name = $1, 
+                    code = $2, 
+                    description = $3,
+                    credits = $4, 
+                    hours = $5, 
+                    semester = $6, 
+                    plan_year = $7, 
+                    major_id = $8, 
+                    active = $9,
+                    updated_at = NOW()
+                WHERE subject_id = $10
+                RETURNING *`,
+                [
+                    data.name,
+                    data.code,
+                    data.description,
+                    data.credits,
+                    data.hours,
+                    data.semester,
+                    data.plan_year,
+                    data.major_id,
+                    data.active,
+                    subjectId
+                ]
+            );
+
+            if (rowCount === 0) {
+                return { success: false, message: "Materia no encontrada" };
+            }
+
+            return { success: true, data: rows[0] };
+
+        } catch (error) {
+            return { success: false, error };
+        }
     }
     
     static async deleteSubject(subjectId) {
@@ -81,7 +118,6 @@ export class subjectModel {
                 [subjectId]
             );
 
-            // Si rowCount es 0, es que no borró nada (no existía el ID)
             if (rowCount === 0) {
                 return { success: false, type: 'not_found' };
             }
