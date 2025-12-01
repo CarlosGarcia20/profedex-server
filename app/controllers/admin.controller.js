@@ -1,3 +1,5 @@
+import { adminModel } from "../models/admin.model.js";
+
 export class adminController {
     static async validateNickname(req, res) {
         try {
