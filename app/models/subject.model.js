@@ -6,9 +6,9 @@ export class subjectModel {
             const { rows } = await pool.query(
                 `SELECT 
                 subjects.*,
-                careers.name AS Carrera
+                majors.name AS major
                 FROM subjects
-                INNER JOIN careers ON subjects.career_id = careers.major_id
+                INNER JOIN majors ON subjects.major_id = majors.major_id
                 ORDER BY subjects.code ASC
                 `
             );
@@ -21,11 +21,11 @@ export class subjectModel {
         }
     }
     
-    static async createSubject({ name, code, description, credits, hours, semester, plan_year, career_id, active }) {
+    static async createSubject({ name, code, description, credits, hours, semester, plan_year, major_id, active }) {
         try {
             const row = await pool.query(
                 `INSERT INTO 
-                    subjects (name, code, description, credits, hours, semester, plan_year, career_id, active)
+                    subjects (name, code, description, credits, hours, semester, plan_year, major_id, active)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
                 `,
                 [
@@ -36,7 +36,7 @@ export class subjectModel {
                     hours,
                     semester,
                     plan_year,
-                    career_id,
+                    major_id,
                     active
                 ]
             );
@@ -51,10 +51,10 @@ export class subjectModel {
         try {
             const { rows } = await pool.query(
                 `SELECT 
-                    careers.name AS carrera,
+                    majors.name AS major,
                     subjects.*
                 FROM subjects
-                INNER JOIN careers ON subjects.career_id = careers.major_id
+                INNER JOIN majors ON subjects.major_id = majors.major_id
                 WHERE subjects.subject_id = $1`,
                 [subjectId]
             );
