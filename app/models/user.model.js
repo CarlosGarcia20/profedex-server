@@ -4,7 +4,7 @@ export class userModel {
     static async getUserByNickName({ nickname }) {
 		try {
 			const { rows } = await pool.query(
-				`SELECT nickname FROM USERS
+				`SELECT nickname FROM users
 					WHERE nickname = $1`,
 				[nickname]
 			)

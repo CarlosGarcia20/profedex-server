@@ -5,7 +5,7 @@ export class subjectController {
     static async getSubjects(req, res) {
         try {
             const result = await subjectModel.getSubjects();
-
+            
             if (!result.success) {
                 return res.status(404).json({ message: "No hay materias registradas" });
             }
