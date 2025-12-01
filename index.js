@@ -23,7 +23,7 @@ app.use(morgan('dev'));
 app.disable('x-powered-by');
 
 app.use('/auth', authRouter);
-app.use('/users', userRouter);
+// app.use('/users', userRouter);
 app.use('/admin', adminRouter);
 app.use('/posts', postRouter);
 app.use('/students', studentRouter);
