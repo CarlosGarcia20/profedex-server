@@ -2,9 +2,11 @@ import { Router } from "express";
 import { requireAuth } from "../middlewares/token.js";
 import { verifyRole } from "../middlewares/roleMiddleware.js";
 // Controladores
-import { adminController } from "../controllers/admin.controller.js";
 import { subjectController } from "../controllers/subject.controller.js";
 import { majorController } from "../controllers/major.controller.js";
+import { groupController } from "../controllers/group.controller.js";
+import { userController } from "../controllers/user.controller.js";
+
 
 const ROLES = {
     ADMIN: '1',       
@@ -14,22 +16,19 @@ const ROLES = {
 
 export const adminRouter = Router();
 
+/* Usuarios */
 adminRouter.get(
     '/users', 
     [
         requireAuth, 
         verifyRole([ROLES.ADMIN])
     ], 
-    adminController.getUsers
+    userController.getUsers
 );
-
-adminRouter.post('/users', /* validacion del token */ adminController.createUser);
-
-adminRouter.post('/users/validate-nickname', /* validacion del token */ adminController.validateNickname);
-
-adminRouter.put('/users/:userId', /* validacion del token */ adminController.updateDataUser);
-
-adminRouter.delete('/users/:userId', /* validacion del token */ adminController.deleteUser);
+adminRouter.post('/users', /* validacion del token */ userController.createUser);
+adminRouter.post('/users/validate-nickname', /* validacion del token */ userController.validateNickname);
+adminRouter.put('/users/:userId', /* validacion del token */ userController.updateDataUser);
+adminRouter.delete('/users/:userId', /* validacion del token */ userController.deleteUser);
 
 /* Carreras */
 adminRouter.get('/majors', majorController.getMajors);
@@ -38,6 +37,12 @@ adminRouter.post('/majors', majorController.createMajor);
 adminRouter.put('/majors/:majorId', majorController.updateMajor);
 adminRouter.delete('/majors/:majorId', majorController.deleteMajor)
 
+/* Materias */
+adminRouter.get('/groups', groupController.getGroups);
+adminRouter.get('/groups/:groupId', groupController.getGroupPerId);
+adminRouter.post('/groups', groupController.createGroup);
+adminRouter.put('/groups/:groupId', groupController.updateGroup);
+adminRouter.delete('/groups/:groupId', groupController.deleteGroup)
 
 /* Materias */
 adminRouter.get('/subjects', subjectController.getSubjects);

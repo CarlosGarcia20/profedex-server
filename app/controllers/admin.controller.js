@@ -1,16 +1,3 @@
-import { validateUniqueNickname } from "../helpers/validateNickname.js";
-import { adminModel } from "../models/admin.model.js"
-import { validateRegister } from "../schemas/register.js";
-import { validateUpdateUser } from "../schemas/user-data.js";
-import { validateUUID } from "../schemas/uuid.js";
-import { EncryptionHelper } from "../utils/encryption.helper.js";
-
-const ROLE_IDS = {
-    "ADMIN": 1,
-    "PROFESSOR": 2,
-    "STUDENT": 3
-};
-
 export class adminController {
     static async validateNickname(req, res) {
         try {
