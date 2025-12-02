@@ -108,8 +108,6 @@ export class majorController {
 
             return res.sendStatus(204);
         } catch (error) {
-            console.log(error);
-            
             res.status(500).json({ message: "Internal Server Error" })
         }
     }
