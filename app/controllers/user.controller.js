@@ -84,8 +84,6 @@ export class userController {
             return res.status(201).json({ message: "Usuario creado con éxito" });
 
         } catch (error) {
-            console.log(error);
-
             res.status(500).json({ message: "Internal Server Error" })
         }
     }
