@@ -7,6 +7,7 @@ import { majorController } from "../controllers/major.controller.js";
 import { groupController } from "../controllers/group.controller.js";
 import { userController } from "../controllers/user.controller.js";
 import { adminController } from "../controllers/admin.controller.js";
+import { unitController } from "../controllers/unit.controller.js";
 
 const ROLES = {
     ADMIN: '1',       
@@ -53,3 +54,7 @@ adminRouter.get('/subjects/:subjectId', subjectController.getSubjectPerId);
 adminRouter.post('/subjects', subjectController.createSubject);
 adminRouter.put('/subjects/:subjectId', subjectController.updateSubject);
 adminRouter.delete('/subjects/:subjectId', subjectController.deleteSubject)
+
+/* Materias */
+adminRouter.get('/units', unitController.getUnits);
+adminRouter.get('/units/:unitId', unitController.getUnitPerId);
