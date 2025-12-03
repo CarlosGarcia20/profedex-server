@@ -2,6 +2,9 @@ import { tokenManager } from "../utils/tokenManager.js";
 import { authModel } from "../models/auth.models.js";
 import { tokenModel } from "../models/token.model.js";
 import { validateLogin } from "../schemas/auth.js";
+import 'dotenv/config';
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 export class authController {
     static async login(req, res) {
@@ -39,15 +42,15 @@ export class authController {
             res.cookie("accessToken", accessToken, {
                 maxAge: 5 * 60 * 1000,
                 httpOnly: true,
-                // secure: true,
-                sameSite: 'lax'
+                secure: isProduction, 
+                sameSite: isProduction ? 'none' : 'lax'
             });
 
             res.cookie("refreshToken", refreshToken, {
                 maxAge: 7 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
-                // secure: true, 
-                sameSite: 'lax'
+                secure: isProduction, 
+                sameSite: isProduction ? 'none' : 'lax'
             });
 
             return res.status(200).json({

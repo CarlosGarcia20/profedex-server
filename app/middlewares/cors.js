@@ -2,7 +2,6 @@ import cors from 'cors'
 import 'dotenv/config';
 
 const ACCEPTED_ORIGINS = [
-    'http://localhost:5173/',
     'http://localhost:5173'
 ]
 
