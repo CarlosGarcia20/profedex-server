@@ -58,3 +58,6 @@ adminRouter.delete('/subjects/:subjectId', subjectController.deleteSubject)
 /* Materias */
 adminRouter.get('/units', unitController.getUnits);
 adminRouter.get('/units/:unitId', unitController.getUnitPerId);
+adminRouter.get('/units/subjects/:subjectId', unitController.getUnitsBySubjectId);
+adminRouter.post('/units', unitController.createUnits);
+adminRouter.delete('/units/:unitId', unitController.deleteUnit);

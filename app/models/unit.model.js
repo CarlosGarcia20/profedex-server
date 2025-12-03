@@ -46,6 +46,32 @@ export class unitModel {
             return { success: false, error }
         }
     }
+
+    static async getUnitsBySubjectId(subjectId) {
+        try {
+            const { rows } = await pool.query(
+                `SELECT
+                    units.*,
+                    subjects.name AS subject
+                FROM units
+                INNER JOIN subjects ON units.subject_id = subjects.subject_id
+                WHERE units.subject_id = $1
+                ORDER BY unit_number ASC`,
+                [subjectId]
+            );
+
+            if (rows.length == 0) {
+                return { 
+                    success: false, 
+                    message: "No se ha encontrado información de la unidad solicitada" 
+                }
+            }
+
+            return { success: true, data: rows }
+        } catch (error) {
+            return { success: false, error }
+        }
+    }
     
     static async createUnit({ subject_id, title, unit_number, active }) {
         try {
@@ -65,6 +91,34 @@ export class unitModel {
             return { success: true, row }
         } catch (error) {
             return { success: false, error }
+        }
+    }
+
+    static async createBulkUnits(unitsArray) {
+        try {
+            const values = [];
+            const placeholders = [];
+
+            unitsArray.forEach((unit, index) => {
+                const i = index * 4;
+                
+                placeholders.push(`($${i + 1}, $${i + 2}, $${i + 3}, $${i + 4})`);
+
+                values.push(unit.subject_id, unit.title, unit.unit_number, unit.active);
+            });
+
+            const query = `
+                INSERT INTO units (subject_id, title, unit_number, active)
+                VALUES ${placeholders.join(', ')}
+                RETURNING *
+            `;
+
+            const { rowCount, rows } = await pool.query(query, values);
+
+            return { success: true, count: rowCount, data: rows };
+
+        } catch (error) {
+            return { success: false, error };
         }
     }
     
@@ -97,11 +151,11 @@ export class unitModel {
         }
     }
     
-    static async deleteGroup(groupId) {
+    static async deleteUnit(unitId) {
         try {
             const { rowCount } = await pool.query(
-                `DELETE FROM groups WHERE group_id = $1`,
-                [groupId]
+                `DELETE FROM units WHERE unit_id = $1`,
+                [unitId]
             );
 
             if (rowCount === 0) {
