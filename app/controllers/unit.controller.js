@@ -1,4 +1,5 @@
 import { unitModel } from "../models/unit.model.js";
+import { validateUnits } from "../schemas/units.js";
 
 export class unitController {
     static async getUnits(req, res) {
@@ -32,34 +33,58 @@ export class unitController {
                 return res.status(500).json({ message: "Internal Server Error" })
             }
         }
-    
-        static async createUnit(req, res) {
+
+        static async getUnitsBySubjectId(req, res) {
             try {
-                // const groupValidation = validateGroup(req.body);
+                const { subjectId } = req.params;
     
-                if (!groupValidation.success) {
-                    return res.status(400).json({
-                        message: "Datos incorrectos",
-                        errors: groupValidation.error.flatten().fieldErrors
+                const result = await unitModel.getUnitsBySubjectId(subjectId);
+    
+                if (!result.success) {
+                    return res.status(404).json({
+                        message: result.message
                     });
                 }
     
-                const result = await groupModel.createGroup({
-                    name: groupValidation.data.name,
-                    gradeLevel: groupValidation.data.grade_level,
-                    major_id: groupValidation.data.major_id,
-                    active: groupValidation.data.active
-                })
-    
-                if (!result.success) {
-                    return res.status().json({ message: "Ocurrió un error al crear la unidad" });
-                }
-    
-                return res.status(201).json({ message: "Unidad guardada con éxito" });
+                return res.status(200).json({ data: result.data });
             } catch (error) {
                 return res.status(500).json({ message: "Internal Server Error" })
             }
         }
+    
+        static async createUnits(req, res) {
+        try {
+            const unitsValidation = validateUnits(req.body);
+
+            if (!unitsValidation.success) {
+                console.log(unitsValidation);
+                
+                return res.status(400).json({
+                    message: "Datos incorrectos en las unidades",
+                    errors: unitsValidation.error.errors
+                });
+            }
+
+            // 2. Llamamos al modelo pasando el array de datos (data)
+            const result = await unitModel.createBulkUnits(unitsValidation.data);
+            console.log(result);
+            
+
+            if (!result.success) {
+                return res.status(500).json({ message: "Ocurrió un error al guardar las unidades" });
+            }
+
+            // 3. Respondemos con éxito y cuántas se crearon
+            return res.status(201).json({ 
+                message: "Unidades guardadas con éxito", 
+                count: result.count 
+            });
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
     
         static async updateGroup(req, res) {
             try {
@@ -88,21 +113,21 @@ export class unitController {
             }
         }
     
-        static async deleteGroup(req, res) {
+        static async deleteUnit(req, res) {
             try {
-                const { groupId } = req.params;
+                const { unitId } = req.params;
     
-                const result = await groupModel.deleteGroup(groupId);
+                const result = await unitModel.deleteUnit(unitId);
     
                 if (!result.success) {
                     if (result.type === 'not_found') {
-                        return res.status(404).json({ message: "El grupo no existe" });
+                        return res.status(404).json({ message: "La unidad no existe" });
                     }
                     if (result.type === 'conflict') {
-                        return res.status(409).json({ message: "No se puede eliminar el grupo porque tiene registros asociados" });
+                        return res.status(409).json({ message: "No se puede eliminar la unidad porque tiene registros asociados" });
                     }
     
-                    return res.status(500).json({ message: "Error al eliminar el grupo" });
+                    return res.status(500).json({ message: "Error al eliminar la unidad" });
                 }
     
                 return res.sendStatus(204);
