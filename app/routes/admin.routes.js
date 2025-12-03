@@ -18,7 +18,7 @@ const ROLES = {
 export const adminRouter = Router();
 
 /* Roles */
-adminRouter.get('/roles', adminController.getRoles);2
+adminRouter.get('/roles', adminController.getRoles);
 
 /* Usuarios */
 adminRouter.get(
