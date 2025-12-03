@@ -77,17 +77,14 @@ export class authController {
         
         await tokenModel.revokeToken(refreshToken);
 
-        res.clearCookie('accessToken', {
+        const cookieOptions = {
             httpOnly: true,
-            sameSite: 'lax'
-            // secure: true
-        });
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
+        };
 
-        res.clearCookie('refreshToken', {
-            httpOnly: true,
-            sameSite: 'lax'
-            // secure: true
-        });
+        res.clearCookie('accessToken', cookieOptions);
+        res.clearCookie('refreshToken', cookieOptions);
         
         return res.status(200).json({ message: "Sesión cerrada exitosamente" });
     }
