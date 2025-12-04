@@ -43,7 +43,7 @@ adminRouter.post('/majors', majorController.createMajor);
 adminRouter.put('/majors/:majorId', majorController.updateMajor);
 adminRouter.delete('/majors/:majorId', majorController.deleteMajor)
 
-/* Materias */
+/* Grupos */
 adminRouter.get('/groups', groupController.getGroups);
 adminRouter.get('/groups/:groupId', groupController.getGroupPerId);
 adminRouter.post('/groups', groupController.createGroup);
