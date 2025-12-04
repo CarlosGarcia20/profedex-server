@@ -64,4 +64,6 @@ adminRouter.post('/units', unitController.createUnits);
 adminRouter.delete('/units/:unitId', unitController.deleteUnit);
 
 /* Horarios */
+adminRouter.get('/groups/:groupId/schedules', scheduleController.getGroupSchedule);
 adminRouter.post('/schedules', scheduleController.create);
+adminRouter.delete('/schedules/:scheduleId', scheduleController.delete);
