@@ -1,9 +1,71 @@
+import { scheduleModel } from "../models/schedule.model.js";
+import { validateSchedules } from "../schemas/schedules.js";
+
 export class scheduleController {
     static async create(req, res) {
+        // ... validaciones con Zod (día 1-7, formato de hora, etc) ...
+        const validationSchedule = validateSchedules(req.body);
+
+        if (!validationSchedule.success) {
+                return res.status(400).json({ 
+                    message: "Datos incorrectos", 
+                    errors: validationSchedule.error.flatten().fieldErrors 
+                });
+            }
+
+        const result = await scheduleModel.assignSchedule({
+            groupId: validationSchedule.data.group_id,
+            subjectId: validationSchedule.data.subject_id,
+            day: validationSchedule.data.day,
+            startTime: validationSchedule.data.start_time,
+            endTime: validationSchedule.data.end_time,
+            classroomId: validationSchedule.data.classroom_id
+        });
+        
+        if (!result.success) {
+            if (result.type === 'conflict') {
+                return res.status(409).json({ message: result.message });
+            }
+            return res.status(500).json({ message: "Error al asignar horario" });
+        }
+
+        return res.status(201).json({ 
+            message: "Horario asignado correctamente", 
+            schedule: result.schedule 
+        });
+    }
+
+    static async getGroupSchedule(req, res) {
         try {
+            const { groupId } = req.params;
             
+            const result = await scheduleModel.getByGroup(groupId);
+
+            if (!result.success) return res.status(404).json({ message: "Error interno" });
+            
+            return res.status(200).json({ data: result.data });
         } catch (error) {
             return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
+
+     static async delete(req, res) {
+        try {
+            const { scheduleId } = req.params;
+
+            const result = await scheduleModel.deleteScheduleById(scheduleId);
+
+            if (!result.success) {
+                if (result.type === 'not_found') {
+                    return res.status(404).json({ message: "La clase no existe" });
+                }
+
+                return res.status(500).json({ message: result.message });
+            }
+
+            return res.sendStatus(201);
+        } catch (error) {
+            return { success: false, error };
         }
     }
 }
