@@ -8,6 +8,7 @@ import { groupController } from "../controllers/group.controller.js";
 import { userController } from "../controllers/user.controller.js";
 import { adminController } from "../controllers/admin.controller.js";
 import { unitController } from "../controllers/unit.controller.js";
+import { scheduleController } from "../controllers/schedule.controller.js";
 
 const ROLES = {
     ADMIN: '1',       
@@ -41,7 +42,7 @@ adminRouter.post('/majors', majorController.createMajor);
 adminRouter.put('/majors/:majorId', majorController.updateMajor);
 adminRouter.delete('/majors/:majorId', majorController.deleteMajor)
 
-/* Materias */
+/* Grupos */
 adminRouter.get('/groups', groupController.getGroups);
 adminRouter.get('/groups/:groupId', groupController.getGroupPerId);
 adminRouter.post('/groups', groupController.createGroup);
@@ -55,9 +56,12 @@ adminRouter.post('/subjects', subjectController.createSubject);
 adminRouter.put('/subjects/:subjectId', subjectController.updateSubject);
 adminRouter.delete('/subjects/:subjectId', subjectController.deleteSubject)
 
-/* Materias */
+/* Unidades */
 adminRouter.get('/units', unitController.getUnits);
 adminRouter.get('/units/:unitId', unitController.getUnitPerId);
 adminRouter.get('/units/subjects/:subjectId', unitController.getUnitsBySubjectId);
 adminRouter.post('/units', unitController.createUnits);
 adminRouter.delete('/units/:unitId', unitController.deleteUnit);
+
+/* Horarios */
+adminRouter.post('/schedules', scheduleController.create);
