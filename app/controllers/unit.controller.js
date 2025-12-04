@@ -53,39 +53,36 @@ export class unitController {
         }
     
         static async createUnits(req, res) {
-        try {
-            const unitsValidation = validateUnits(req.body);
+            try {
+                const unitsValidation = validateUnits(req.body);
 
-            if (!unitsValidation.success) {
-                console.log(unitsValidation);
+                if (!unitsValidation.success) {
+                    console.log(unitsValidation);
+                    
+                    return res.status(400).json({
+                        message: "Datos incorrectos en las unidades",
+                        errors: unitsValidation.error.errors
+                    });
+                }
+
+                const result = await unitModel.createBulkUnits(unitsValidation.data);
+                console.log(result);
                 
-                return res.status(400).json({
-                    message: "Datos incorrectos en las unidades",
-                    errors: unitsValidation.error.errors
+
+                if (!result.success) {
+                    return res.status(500).json({ message: "Ocurrió un error al guardar las unidades" });
+                }
+
+                return res.status(201).json({ 
+                    message: "Unidades guardadas con éxito", 
+                    count: result.count 
                 });
+
+            } catch (error) {
+                return res.status(500).json({ message: "Internal Server Error" });
             }
-
-            // 2. Llamamos al modelo pasando el array de datos (data)
-            const result = await unitModel.createBulkUnits(unitsValidation.data);
-            console.log(result);
-            
-
-            if (!result.success) {
-                return res.status(500).json({ message: "Ocurrió un error al guardar las unidades" });
-            }
-
-            // 3. Respondemos con éxito y cuántas se crearon
-            return res.status(201).json({ 
-                message: "Unidades guardadas con éxito", 
-                count: result.count 
-            });
-
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({ message: "Internal Server Error" });
         }
-    }
-    
+        
         static async updateGroup(req, res) {
             try {
                 const { groupId } = req.params;

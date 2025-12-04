@@ -95,9 +95,12 @@ export class unitModel {
     }
 
     static async createBulkUnits(unitsArray) {
+        const client = await pool.connect();
+        const values = [];
+        const placeholders = [];
+
         try {
-            const values = [];
-            const placeholders = [];
+            await client.query('BEGIN');
 
             unitsArray.forEach((unit, index) => {
                 const i = index * 4;
@@ -115,10 +118,15 @@ export class unitModel {
 
             const { rowCount, rows } = await pool.query(query, values);
 
+            await client.query('COMMIT');
             return { success: true, count: rowCount, data: rows };
 
         } catch (error) {
+            await client.query('ROLLBACK');
+            
             return { success: false, error };
+        } finally {
+            client.release();
         }
     }
     
