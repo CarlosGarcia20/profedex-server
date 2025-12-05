@@ -9,6 +9,7 @@ import { userController } from "../controllers/user.controller.js";
 import { adminController } from "../controllers/admin.controller.js";
 import { unitController } from "../controllers/unit.controller.js";
 import { scheduleController } from "../controllers/schedule.controller.js";
+import { teacherController } from "../controllers/teacher.controller.js";
 
 const ROLES = {
     ADMIN: '1',       
@@ -50,6 +51,8 @@ adminRouter.put('/groups/:groupId', groupController.updateGroup);
 adminRouter.delete('/groups/:groupId', groupController.deleteGroup)
 
 adminRouter.get('/classrooms', scheduleController.getClassrooms); // <-- Endpoint temporal
+
+adminRouter.get('/teachers', teacherController.getTeachers); // <-- Endpoint temporal
 
 /* Materias */
 adminRouter.get('/subjects', subjectController.getSubjects);
