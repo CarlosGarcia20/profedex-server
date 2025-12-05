@@ -10,7 +10,7 @@ export class scheduleModel {
             const createdSchedules = [];
 
             for (const schedule of schedulesArray) {
-                const { group_id, subject_id, day, start_time, end_time, classroom_id } = schedule;
+                const { group_id, subject_id, teacher_id, day, start_time, end_time, classroom_id } = schedule;
 
                 const { rowCount } = await client.query(
                     `SELECT schedule_id FROM schedules 
@@ -34,16 +34,17 @@ export class scheduleModel {
 
                 const { rows } = client.query(
                     `INSERT INTO 
-                    schedules (group_id, subject_id, day_of_week, start_time, end_time, classroom_id)
-                    VALUES ($1, $2, $3, $4, $5, $6)
+                    schedules (group_id, subject_id, teacher_id, day_of_week, start_time, end_time, classroom_id)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
                     RETURNING *
                     `,
                     [
-                        group_id, 
-                        subject_id, 
-                        day, 
-                        start_time, 
-                        end_time, 
+                        group_id,
+                        subject_id,
+                        teacher_id,
+                        day,
+                        start_time,
+                        end_time,
                         classroom_id
                     ]
                 );
