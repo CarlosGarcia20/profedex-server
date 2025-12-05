@@ -55,23 +55,23 @@ export class userController {
                 })
             }
 
-            const data = registerValidation.data;
-            const idRol = ROLE_IDS[data.role];
+            const { name, nickname, password, role } = registerValidation.data;
 
-            const nicknameValidation = await validateUniqueNickname(data.nickname);
+            const nicknameValidation = await validateUniqueNickname(nickname);
             if (!nicknameValidation.success) {
                 return res.status(400).json({ message: nicknameValidation.error.message });
             }
 
-            const hashPassword = await EncryptionHelper.hashPassword(data.password);
+            const hashPassword = await EncryptionHelper.hashPassword(password);
 
-            const userData = {
-                ...data,
+            const result = await userModel.createUser({
+                name: name,
+                nickname: nickname,
                 password: hashPassword,
-                idRol: idRol
-            }
-
-            const result = await userModel.createUser({ userData });
+                idRol: role
+            });
+            console.log(result);
+            
 
             if (!result.success) {
                 if (result.type === 'conflict') {
