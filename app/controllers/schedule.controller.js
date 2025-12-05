@@ -3,36 +3,42 @@ import { validateSchedules } from "../schemas/schedules.js";
 
 export class scheduleController {
     static async create(req, res) {
-        // ... validaciones con Zod (día 1-7, formato de hora, etc) ...
-        const validationSchedule = validateSchedules(req.body);
-
-        if (!validationSchedule.success) {
+        try {
+            const validationSchedule = validateSchedules(req.body);
+    
+            if (!validationSchedule.success) {
+                if(!validationSchedule.message) {
+                    return res.status(400).json({
+                        message: JSON.parse(validationSchedule.error.message)
+                    })
+                } 
+                    
                 return res.status(400).json({ 
-                    message: "Datos incorrectos", 
+                    message: "Datos incorrectos",
                     errors: validationSchedule.error.flatten().fieldErrors 
                 });
             }
+    
+            const result = await scheduleModel.assignSchedule(validationSchedule.data);
 
-        const result = await scheduleModel.assignSchedule({
-            groupId: validationSchedule.data.group_id,
-            subjectId: validationSchedule.data.subject_id,
-            day: validationSchedule.data.day,
-            startTime: validationSchedule.data.start_time,
-            endTime: validationSchedule.data.end_time,
-            classroomId: validationSchedule.data.classroom_id
-        });
-        
-        if (!result.success) {
-            if (result.type === 'conflict') {
-                return res.status(409).json({ message: result.message });
+            if (!result.success) {
+                if (result.type === 'conflict') {
+                    return res.status(409).json({
+                        message: result.message,
+                        conflict: result.detail 
+                    });
+                }
+
+                return res.status(500).json({ message: "Error al asignar horarios" });
             }
-            return res.status(500).json({ message: "Error al asignar horario" });
+    
+            return res.status(201).json({ 
+                message: "Horarios asignados correctamente", 
+                count: result.count 
+            });
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" });
         }
-
-        return res.status(201).json({ 
-            message: "Horario asignado correctamente", 
-            schedule: result.schedule 
-        });
     }
 
     static async getGroupSchedule(req, res) {
@@ -65,7 +71,19 @@ export class scheduleController {
 
             return res.sendStatus(201);
         } catch (error) {
-            return { success: false, error };
+            return res.status(500).json({ message: "Internal Server Error" })
+        }
+    }
+
+    static async getClassrooms(req, res) {
+        try {
+            const result = await scheduleModel.getClassrooms();
+
+            if (!result.success) return res.status(404).json({ message: "No hay grupos registrados" });
+
+            return res.status(200).json({ data: result.data });
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" });
         }
     }
 }
