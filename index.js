@@ -12,6 +12,7 @@ import { studentRouter } from "./app/routes/student.routes.js";
 
 // Middlewares
 import { corsMiddleware } from "./app/middlewares/cors.js";
+import { teacherRouter } from "./app/routes/teacher.routes.js";
 
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/auth', authRouter);
 app.use('/admin', adminRouter);
 app.use('/posts', postRouter);
 app.use('/students', studentRouter);
+app.use('/teachers', teacherRouter);
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
