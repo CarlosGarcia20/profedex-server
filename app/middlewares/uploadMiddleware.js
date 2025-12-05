@@ -17,6 +17,7 @@ export const upload = multer({
         s3: s3,
         bucket: process.env.AWS_BUCKET_NAME,
         acl: 'public-read',
+        contentType: multerS3.AUTO_CONTENT_TYPE,
         metadata: function (req, file, cb) {
             cb(null, { fieldName: file.fieldname });
         },
@@ -30,6 +31,31 @@ export const upload = multer({
         }
     }),
     limits: { fileSize: 5 * 1024 * 1024 } // Límite de 5MB
+});
+
+export const uploadProfile = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: process.env.AWS_BUCKET_NAME,
+        acl: 'public-read',
+        metadata: function (req, file, cb) {
+            cb(null, { fieldName: file.fieldname });
+        },
+        key: function (req, file, cb) {
+            const userId = req.user.userId;
+            const extension = path.extname(file.originalname);
+            // Guardamos como: profiles/usuario-timestamp.jpg
+            cb(null, `profiles/${userId}-${Date.now()}${extension}`);
+        }
+    }),
+    limits: { fileSize: 2 * 1024 * 1024 }, 
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Solo se permiten imágenes para el perfil'), false);
+        }
+    }
 });
 
 export { s3 };
