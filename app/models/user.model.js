@@ -1,3 +1,4 @@
+import { success } from "zod";
 import pool from "../config/db.js";
 
 export class userModel {
@@ -19,52 +20,29 @@ export class userModel {
 		}
 	}
 
-	static async createUser({ userData }) {
-		const client = await pool.connect();
-		
+	static async createUser({ name, nickname, password, idRol }) {
 		try {
-			await client.query('BEGIN');
-
-			const { name, nickname, password, idRol, role } = userData;
-
-			const userQuery = `
-				INSERT INTO users (name, nickname, password, idrol)
+			const { rows } = await pool.query(
+				`INSERT INTO 
+					users (name, nickname, password, idrol)
 				VALUES ($1, $2, $3, $4)
-				RETURNING userid
-			`;
-
-			const userRes = await client.query(
-				userQuery, 
-				[name, nickname, password, idRol]
+				RETURNING userid`,
+				[
+					name,
+					nickname,
+					password,
+					idRol
+				]
 			);
-			const newUserId = userRes.rows[0].userid;
+			console.log(rows);
+			
 
-			if (role == "STUDENT") {
-				const { studentId, group_id } = userData;
-
-				await client.query(
-                    `INSERT INTO students (userid, enrollment_id, group_id) 
-					VALUES ($1, $2, $3)`,
-					[newUserId, studentId, group_id]
-                );
-				
- 			} else if (role == "PROFESSOR") {
-				const { masterId, } = userData;
-
-				await client.query(
-					`UPDATE masters 
-					SET user_id = $1
-					WHERE master_id = $2`,
-					[newUserId, masterId]
-				);
+			if (rows.length > 0) {
+				return { success: true }
 			}
 
-			await client.query('COMMIT');
-
-            return { success: true };
+			return { success: false }
 		} catch (error) {
-			await client.query('ROLLBACK');
-			
 			if (error.code === '23505') {
 				return {
 					success: false,
@@ -73,9 +51,6 @@ export class userModel {
 				};
 			}
 			return { success: false, error }
-
-		} finally {
-			client.release();
 		}
 	}
 
