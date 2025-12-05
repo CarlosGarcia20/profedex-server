@@ -49,6 +49,8 @@ adminRouter.post('/groups', groupController.createGroup);
 adminRouter.put('/groups/:groupId', groupController.updateGroup);
 adminRouter.delete('/groups/:groupId', groupController.deleteGroup)
 
+adminRouter.get('/classrooms', scheduleController.getClassrooms); // <-- Endpoint temporal
+
 /* Materias */
 adminRouter.get('/subjects', subjectController.getSubjects);
 adminRouter.get('/subjects/:subjectId', subjectController.getSubjectPerId);
