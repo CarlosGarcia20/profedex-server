@@ -1,7 +1,7 @@
 import { adminModel } from "../models/admin.model.js";
 
 export class adminController {
-    static async validateNickname(req, res) {
+    static async getRoles(req, res) {
         try {
             const { nickname } = req.body;
 
@@ -104,37 +104,7 @@ export class adminController {
                 return res.status(404).json({ message: result.message });
             }
 
-            if(!resu)
-
-            return res.status(200).json({
-                message: result.message,
-                user: result.user
-            });
-
-        } catch (error) {
-            return res.status(500).json({ message: "Internal Server Error" });
-        }
-    }
-
-    static async deleteUser(req, res) {
-        try {
-            const { userId } = req.params;
-
-            const uuidValidation = validateUUID({ userId });
-
-            if (!uuidValidation.success) {
-                return res.status(400).json({
-                    message: JSON.parse(uuidValidation.error.message)
-                });
-            }
-
-            const result = await adminModel.deleteUser({ userId: uuidValidation.data.userId });
-
-            if (!result.success) {
-                return res.status(404).json({ message: "El usuario no existe o ya fue eliminado" });
-            }
-
-            return res.status(200).json({ message: "Usuario eliminado con éxito " });
+            return res.status(200).json({ data: result.data });
         } catch (error) {
             return res.status(500).json({ message: "Internal Server Error" });
         }
