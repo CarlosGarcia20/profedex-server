@@ -12,4 +12,12 @@ export class teacherController {
             return res.status(500).json({ message: "Internal Server Error" })
         }
     }
+    
+    static async getTeacherInfoCard(req, res) {
+        try {
+            
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" })
+        }
+    }
 }
