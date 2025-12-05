@@ -70,4 +70,55 @@ export class studentController {
             return res.status(500).json({ message: "Internal Server Error" });
         }
     }
+
+    static async getMySchedules(req, res) {
+        try {
+            const userId = req.user.userId;
+
+            const result = await studentModel.getMySchedules(userId);
+
+            if (!result.success) {
+                return res.status(404).json({ message: "No tienes horarios asignados" });
+            }
+
+            return res.status(200).json({ 
+                data: result.data,
+                group: result.group
+            });
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
+    
+    static async getRetakesByStudent(req, res) {
+        try {
+            const userId = req.user.userId;
+
+            const result = await studentModel.getRetakesByStudent(userId);
+
+            if (!result.success) {
+                return res.status(404).json({ message: "No tienes materias por recursar" });
+            }
+
+            return res.status(200).json({ data: result.data });
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
+    
+    static async getMyTeachers(req, res) {
+        try {
+            const userId = req.user.userId;
+
+            const result = await studentModel.getMyTeachers(userId);
+            
+            if (!result.success) {
+                return res.status(404).json({ message: "No tienes maestros asignados" });
+            }
+
+            return res.status(200).json({ data: result.data });
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
 }

@@ -7,6 +7,7 @@ export const studentRouter = Router();
 
 studentRouter.get('/me/group', [requireAuth], studentController.getMyGroup);
 studentRouter.get('/me/info', [requireAuth], studentController.getMyinfo);
+studentRouter.get('/me/schedules', [requireAuth], studentController.getMySchedules);  
 studentRouter.patch(
     '/profile-picture', 
     [
@@ -15,3 +16,5 @@ studentRouter.patch(
     ], 
     studentController.uploadProfilePicture
 )
+studentRouter.get('/me/retakes', [requireAuth], studentController.getRetakesByStudent);
+studentRouter.get('/me/teachers', [requireAuth], studentController.getMyTeachers);
