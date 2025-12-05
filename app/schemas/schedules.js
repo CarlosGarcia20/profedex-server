@@ -7,6 +7,9 @@ const scheduleItemSchema = z.object({
     subject_id: z.coerce.number({ error: "El id de la materia tiene que ser número" })
         .int()
         .positive(),
+    teacher_id: z.coerce.number({ error: "El id del maestro tiene que ser número" })
+        .int()
+        .positive(),
     day: z.coerce.number()
         .int()
         .min(1, { error: "El día debe ser entre 1 (Lunes) y 5 (Viernes)" })
