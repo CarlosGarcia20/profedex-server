@@ -96,8 +96,6 @@ export class authController {
 
             const data = tokenManager.verifyRefreshToken(refreshToken);
 
-            console.log(data);
-
             const dbToken = await tokenModel.findToken({ token: refreshToken });
             if (!dbToken.success) return res.status(403).json({ message: "Revocado" });
 
