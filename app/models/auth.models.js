@@ -23,7 +23,8 @@ export class authModel {
                     userId: rows[0].userid,
                     nickname: rows[0].nickname,
                     name: rows[0].name,
-                    idRol: rows[0].idrol
+                    idRol: rows[0].idrol,
+                    image: rows[0].image
                 } 
             }
         } catch (error) {
