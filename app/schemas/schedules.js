@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const scheduleSchema = z.object({
+const scheduleItemSchema = z.object({
     group_id: z.coerce.number({ error: "El id del grupo tiene que ser número" })
         .int()
         .positive(),
@@ -15,12 +15,14 @@ const scheduleSchema = z.object({
     end_time: z.iso.time({ error: "Formato de hora inválido (HH:MM:SS)" }),
     classroom_id: z.coerce.number().int().positive()
 })
-
 .refine((data) => data.end_time > data.start_time, {
     error: "La hora de fin debe ser posterior a la hora de inicio",
     path: ["end_time"]
 });
 
+const schedulesArraySchema = z.array(scheduleItemSchema)
+    .min(1, "Debes enviar al menos un horario");
+
 export function validateSchedules(input) {
-    return scheduleSchema.safeParse(input);
+    return schedulesArraySchema.safeParse(input);
 }
