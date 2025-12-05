@@ -55,7 +55,8 @@ export class authController {
                 user: {
                     nickname: result.data.nickname,
                     name: result.data.name,
-                    idRol: result.data.idRol
+                    idRol: result.data.idRol,
+                    image: result.data.image
                 }
             });
 
