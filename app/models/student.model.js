@@ -141,11 +141,15 @@ export class studentModel {
                         masters.lastname, ' ',
                         masters.name, ' '
                     ) AS master,
-                    masters.master_id
+                    masters.master_id,
+                    teacher_popularity.popularity,
+                    users.image
                 FROM students
                 INNER JOIN groups ON students.group_id = groups.group_id
                 INNER JOIN schedules ON groups.group_id = schedules.group_id
                 INNER JOIN masters ON schedules.teacher_id = masters.master_id
+                LEFT JOIN teacher_popularity ON masters.master_id = teacher_popularity.teacher_id
+                LEFT JOIN users ON masters.user_id = users.userid
                 WHERE students.userid = $1`,
                 [userId]
             );
