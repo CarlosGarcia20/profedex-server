@@ -19,7 +19,12 @@ export class teacherModel {
     static async getMyInfo(userId) {
         try {
             const { rows } = await pool.query(
-                `SELECT * FROM masters
+                `SELECT 
+                    masters.*,
+                    users.nickname,
+                    users.image
+                FROM masters
+                INNER JOIN users ON masters.user_id = users.userid
                 WHERE user_id = $1`,
                 [userId]
             );

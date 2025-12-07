@@ -19,7 +19,7 @@ export class teacherController {
 
             const result = await teacherModel.getMyInfo(userId);
 
-            if (!result.success) return res.status(404).json({ message: "No hay maestros disponibles" })
+            if (!result.success) return res.status(404).json({ message: "Error al obtener la información" })
 
             return res.status(200).json({ data: result.data });
         } catch (error) {
