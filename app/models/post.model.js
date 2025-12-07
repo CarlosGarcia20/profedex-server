@@ -65,4 +65,32 @@ export class postModel {
             return { success: false, error };
         }
     }
+
+    static async updateProfilePicture(userId, newImageUrl, newS3Key) {
+        try {
+            const { rows: oldData } = await pool.query(
+                `SELECT image_key FROM users WHERE userid = $1`,
+                [userId]
+            );
+
+            const oldS3Key = oldData[0]?.image_key;
+
+            const { rows } = await pool.query(
+                `UPDATE users 
+                SET image = $1, image_key = $2
+                WHERE userid = $3
+                RETURNING image`,
+                [newImageUrl, newS3Key, userId]
+            );
+
+            return { 
+                success: true, 
+                newUrl: rows[0].image, 
+                oldKeyToDelete: oldS3Key
+            };
+
+        } catch (error) {
+            return { success: false, error };
+        }
+    }
 }
