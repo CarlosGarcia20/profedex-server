@@ -11,13 +11,14 @@ export default (io) => {
         console.log(`Usuario conectado con el rol: ${ROLE_MAP[socket.user.userIdRol]}`);
 
         // --- EVENTOS DE MAESTRO ---
-        socket.on('teacher:start', ({coords}) => {
+        socket.on('teacher:start', ({coords, master_id}) => {
             if (socket.user.userIdRol !== '2' && socket.user.role !== '1') {
                 return;
             }
 
             activeTeachers[socket.user.userId] = {
                 id: socket.user.userId,
+                masterId: master_id,
                 lat: coords.lat,
                 lng: coords.lng,
                 lastUpdate: Date.now()
