@@ -13,11 +13,19 @@ export class teacherController {
         }
     }
     
-    static async getTeacherInfoCard(req, res) {
+    static async getMyInfo(req, res) {
         try {
-            
+            const userId = req.user.userId;
+
+            const result = await teacherModel.getMyInfo(userId);
+
+            if (!result.success) return res.status(404).json({ message: "Error al obtener la información" })
+
+            return res.status(200).json({ data: result.data });
         } catch (error) {
             return res.status(500).json({ message: "Internal Server Error" })
         }
     }
+
+    
 }

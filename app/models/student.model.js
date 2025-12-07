@@ -48,34 +48,6 @@ export class studentModel {
         }
     }
 
-    static async updateProfilePicture(userId, newImageUrl, newS3Key) {
-        try {
-            const { rows: oldData } = await pool.query(
-                `SELECT image_key FROM users WHERE userid = $1`,
-                [userId]
-            );
-
-            const oldS3Key = oldData[0]?.image_key;
-
-            const { rows } = await pool.query(
-                `UPDATE users 
-                SET image = $1, image_key = $2
-                WHERE userid = $3
-                RETURNING image`,
-                [newImageUrl, newS3Key, userId]
-            );
-
-            return { 
-                success: true, 
-                newUrl: rows[0].image, 
-                oldKeyToDelete: oldS3Key
-            };
-
-        } catch (error) {
-            return { success: false, error };
-        }
-    }
-
     static async getMySchedules(userId) {
         try {
             const { rows } = await pool.query(
@@ -141,11 +113,15 @@ export class studentModel {
                         masters.lastname, ' ',
                         masters.name, ' '
                     ) AS master,
-                    masters.master_id
+                    masters.master_id,
+                    teacher_popularity.popularity,
+                    users.image
                 FROM students
                 INNER JOIN groups ON students.group_id = groups.group_id
                 INNER JOIN schedules ON groups.group_id = schedules.group_id
                 INNER JOIN masters ON schedules.teacher_id = masters.master_id
+                LEFT JOIN teacher_popularity ON masters.master_id = teacher_popularity.teacher_id
+                LEFT JOIN users ON masters.user_id = users.userid
                 WHERE students.userid = $1`,
                 [userId]
             );
