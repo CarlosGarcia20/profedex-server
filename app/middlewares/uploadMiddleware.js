@@ -58,4 +58,31 @@ export const uploadProfile = multer({
     }
 });
 
+export const uploadEvent = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: process.env.AWS_BUCKET_NAME,
+        acl: 'public-read',
+        contentType: multerS3.AUTO_CONTENT_TYPE,
+        metadata: function (req, file, cb) {
+            cb(null, { fieldName: file.fieldname });
+        },
+        key: function (req, file, cb) {
+            const userId = req.user.userId;
+            const uniqueSuffix = Date.now();
+            const extension = path.extname(file.originalname);
+            
+            cb(null, `events/${userId}-${uniqueSuffix}${extension}`);
+        }
+    }),
+    limits: { fileSize: 5 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        } else {
+            cb(new Error('Solo se permiten imágenes (JPG, PNG, WEBP)'), false);
+        }
+    }
+});
+
 export { s3 };
