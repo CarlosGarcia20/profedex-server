@@ -2,7 +2,8 @@ import cors from 'cors'
 import 'dotenv/config';
 
 const ACCEPTED_ORIGINS = [
-    'http://localhost:5173'
+    'http://localhost:5173',
+    process.env.FRONTEND_URL
 ]
 
 export const corsMiddleware = ({ acceptedOrigins = ACCEPTED_ORIGINS } = {}) => cors({
