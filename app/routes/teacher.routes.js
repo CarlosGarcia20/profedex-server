@@ -16,3 +16,12 @@ teacherRouter.post(
     teacherController.createEvent
 );
 teacherRouter.get('/my-events', [requireAuth], teacherController.getMyEvents);
+teacherRouter.put(
+    '/event/:eventId', 
+    [
+        requireAuth,
+        uploadEvent.single('image')
+    ], 
+    teacherController.updateEvent
+);
+teacherRouter.delete('/event/:eventId', [requireAuth], teacherController.deleteEvent);

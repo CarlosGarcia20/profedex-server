@@ -99,17 +99,115 @@ export class teacherModel {
     
     static async getMyEvents(userId) {
         try {
-            const { rows } = await pool.query(
+            const { rows, rowCount } = await pool.query(
                 `SELECT * FROM events
                 WHERE userid = $1`,
                 [userId]
             );
+            console.log(rows.length);
+            
 
-            if (rows.length < 0) return { success: false }
+            if (rowCount == 0) return { success: false }
 
             return { success: true, data: rows }
         } catch (error) {
             return { success: false, error }
+        }
+    }
+    
+    static async updateEvent({ eventId, userId, name, description, date, status, image, s3Key }) {
+        const client = await pool.connect();
+        
+        try {
+            await client.query('BEGIN');
+
+            const { rows: currentData } = await client.query(
+                `SELECT s3key 
+                FROM events
+                WHERE event_id = $1
+                AND userid = $2`,
+                [ eventId, userId ]
+            );
+
+            if (currentData.length === 0) {
+                await client.query('ROLLBACK');
+                return { success: false, type: 'not_found' };
+            }
+
+            const oldS3Key = currentData[0].s3key;
+
+            const { rows } = await client.query(
+                `UPDATE events
+                SET name = $1,
+                    description = $2,
+                    date = $3,
+                    status = $4,
+                    image = COALESCE($5, image),
+                    s3key = COALESCE($6, s3key),
+                    updated_at = NOW()
+                WHERE event_id = $7`,
+                [
+                    name, 
+                    description, 
+                    date, 
+                    status, 
+                    image,
+                    s3Key, 
+                    eventId
+                ]
+            );
+
+            await client.query('COMMIT');
+
+            return { 
+                success: true, 
+                oldS3Key: s3Key ? oldS3Key : null 
+            };
+
+        } catch (error) {
+            await client.query('ROLLBACK');
+            return { success: false, error };
+        } finally {
+            client.release();
+        }
+    }
+
+    static async deleteEvent(eventId) {
+        try {
+            const { rowCount: hasImages } = await pool.query(
+                `SELECT 1 FROM user_images WHERE event_id = $1 LIMIT 1`,
+                [eventId]
+            );
+
+            if (hasImages > 0) {
+                const { rowCount } = await pool.query(
+                    `UPDATE events 
+                    SET status = 'N', updated_at = NOW() 
+                    WHERE event_id = $1`,
+                    [eventId]
+                );
+
+                if (rowCount === 0) return { success: false, type: 'not_found' };
+                
+                return { success: true, action: 'disabled' };
+
+            } else {
+                const { rows, rowCount } = await pool.query(
+                    `DELETE FROM events 
+                    WHERE event_id = $1 
+                    RETURNING s3key`, 
+                    [eventId]
+                );
+
+                if (rowCount === 0) return { success: false, type: 'not_found' };
+
+                const deletedKey = rows[0]?.s3key || null;
+
+                return { success: true, action: 'deleted', s3Key: deletedKey };
+            }
+
+        } catch (error) {
+            return { success: false, error };
         }
     }
 }
