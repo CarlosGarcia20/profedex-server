@@ -104,4 +104,18 @@ export class postController {
             return res.status(500).json({ message: "Internal Server Error" });
         }
     }
+    
+    static async getAllActiveEvents(req, res) {
+        try {
+            const result = await postModel.getAllActiveEvents();
+
+            if(!result.success) {
+                return res.status(404).json({ message: "No hay eventos disponibles" });
+            }
+
+            return res.status(200).json({ data: result.data });
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
 }

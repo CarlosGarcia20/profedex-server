@@ -93,4 +93,18 @@ export class postModel {
             return { success: false, error };
         }
     }
+
+    static async getAllActiveEvents() {
+        try {
+            const { rows } = await pool.query(
+                `SELECT * FROM events WHERE status = 'S'`
+            );
+
+            if (rows.length < 0) return { success: false} 
+
+            return { success: true, data: rows }
+        } catch (error) {
+            return { success: false, error };
+        }
+    }
 }
