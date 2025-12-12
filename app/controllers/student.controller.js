@@ -72,12 +72,10 @@ export class studentController {
     
     static async getMyTeachers(req, res) {
         try {
-            const userId = req.user.userId;
-
-            const result = await studentModel.getMyTeachers(userId);
+            const result = await studentModel.getMyTeachers();
             
             if (!result.success) {
-                return res.status(404).json({ message: "No tienes maestros asignados" });
+                return res.status(404).json({ message: "No hay maestros disponibles" });
             }
 
             return res.status(200).json({ data: result.data });

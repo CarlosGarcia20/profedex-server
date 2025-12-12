@@ -104,26 +104,21 @@ export class studentModel {
         }
     }
 
-    static async getMyTeachers(userId) {
+    static async getMyTeachers() {
         try {
             const { rows } = await pool.query(
-                `SELECT DISTINCT
+                `SELECT 
+                    masters.master_id,
                     CONCAT(
                         masters.acronym, ' ',
                         masters.lastname, ' ',
-                        masters.name, ' '
+                        masters.name
                     ) AS master,
-                    masters.master_id,
-                    teacher_popularity.popularity,
-                    users.image
-                FROM students
-                INNER JOIN groups ON students.group_id = groups.group_id
-                INNER JOIN schedules ON groups.group_id = schedules.group_id
-                INNER JOIN masters ON schedules.teacher_id = masters.master_id
-                LEFT JOIN teacher_popularity ON masters.master_id = teacher_popularity.teacher_id
+                    users.image,
+                    teacher_popularity.popularity
+                FROM masters
                 LEFT JOIN users ON masters.user_id = users.userid
-                WHERE students.userid = $1`,
-                [userId]
+                LEFT JOIN teacher_popularity ON masters.master_id = teacher_popularity.teacher_id`
             );
 
             if (rows.length < 0) return { success: false }
