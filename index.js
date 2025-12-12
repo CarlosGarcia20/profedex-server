@@ -6,6 +6,9 @@ import cookieParser from "cookie-parser";
 import { PORT } from "./app/config/config.js";
 import locationSocket from "./app/sockets/locationSocket.js";
 
+import { createClient } from 'redis';
+import { createAdapter } from '@socket.io/redis-adapter';
+
 // Rutas
 import { authRouter } from "./app/routes/auth.routes.js";
 import { userRouter } from "./app/routes/users.routes.js";
@@ -21,12 +24,21 @@ import { verifySocketToken } from "./app/middlewares/socketAuth.js";
 const app = express();
 const server = http.createServer(app);
 
+const pubClient = createClient({ url: process.env.REDIS_URL || 'redis://localhost:6379' });
+const subClient = pubClient.duplicate();
+
+pubClient.on('error', (err) => console.error('Redis Pub Error:', err));
+subClient.on('error', (err) => console.error('Redis Sub Error:', err));
+
+await Promise.all([pubClient.connect(), subClient.connect()]);
+
 const io = new SocketServer(server, {
     cors: {
         origin: process.env.FRONTEND_URL || "http://localhost:5173",
         methods: ["GET", "POST"],
         credentials: true
-    }
+    },
+    adapter: createAdapter(pubClient, subClient)
 });
 
 io.use(verifySocketToken)
