@@ -35,8 +35,6 @@ export class teacherController {
             const userId = req.user.userId;
             
             const result = await teacherModel.getMySchedules(userId);
-            console.log(result);
-            
 
             if (!result.success) return res.status(404).json({ message: "Error al obtener la información" })
 
@@ -183,7 +181,7 @@ export class teacherController {
     }
 }
 
-const deleteImageOnError = async (s3Key) => {
+export const deleteImageOnError = async (s3Key) => {
     if (!s3Key) return;
     try {
         await s3.send(new DeleteObjectCommand({
