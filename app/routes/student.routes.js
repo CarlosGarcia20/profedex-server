@@ -9,3 +9,7 @@ studentRouter.get('/me/info', [requireAuth], studentController.getMyinfo);
 studentRouter.get('/me/schedules', [requireAuth], studentController.getMySchedules);  
 studentRouter.get('/me/retakes', [requireAuth], studentController.getRetakesByStudent);
 studentRouter.get('/me/teachers', [requireAuth], studentController.getMyTeachers);
+studentRouter.get('/me/teachers-cards', [requireAuth], studentController.getAllTeachersCards);
+studentRouter.post('/:teacherId/vote', [requireAuth], studentController.voteTeacher);
+studentRouter.get('/teachers/:teacherId/comments', [requireAuth], studentController.getCommentsByTeacher);
+studentRouter.post('/teachers/:teacherId/comments', [requireAuth], studentController.createComment);
