@@ -199,4 +199,55 @@ export class studentModel {
             client.release();
         }
     }
+
+    static async createComment({ userId, teacherId, content }) {
+        try {
+            const { rows } = await pool.query(
+                `WITH inserted AS (
+                    INSERT INTO teacher_comments (user_id, teacher_id, content)
+                    VALUES ($1, $2, $3)
+                    RETURNING *
+                )
+                SELECT 
+                    inserted.comment_id,
+                    inserted.content,
+                    inserted.created_at,
+                    users.name AS user,
+                    users.image AS image
+                FROM inserted
+                INNER JOIN students ON inserted.user_id = students.userid
+                INNER JOIN users ON students.userid = users.userid`,
+                [ userId, teacherId, content ]
+            );
+            
+            return { success: true, data: rows[0] };
+        } catch (error) {
+            return { success: false, error };
+        }
+    }
+
+    static async getCommentsByTeacher(teacherId) {
+        try {
+            const { rows } = await pool.query(
+                `SELECT 
+                    teacher_comments.comment_id,
+                    teacher_comments.content,
+                    teacher_comments.created_at,
+                    users.name AS name,
+                    users.image AS image
+                FROM teacher_comments
+                INNER JOIN users ON teacher_comments.user_id = users.userid
+                WHERE teacher_comments.teacher_id = $1
+                ORDER BY teacher_comments.created_at DESC`,
+                [teacherId]
+            );
+            
+            if (rows.length < 0) return { success: false }
+
+            return { success: true, data: rows };
+            
+        } catch (error) {
+            return { success: false, error };
+        }
+    }
 }

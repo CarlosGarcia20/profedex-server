@@ -114,20 +114,41 @@ export class studentController {
         return res.status(200).json({ message: "Voto actualizado" });
     }
 
+    static async getCommentsByTeacher(req, res) {
+        try {
+            const { teacherId } = req.params;
+
+            const result = await studentModel.getCommentsByTeacher(teacherId);
+            
+            if (!result.success) {
+                return res.status(404).json({ message: "No hay comentarios disponibles" });
+            }
+
+            return res.status(200).json({ data: result.data });
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
+    
     static async createComment(req, res) {
         try {
             const userId = req.user.userId;
-            const { teacherId, comment } = req.body;
-
+            const { teacherId } = req.params;
+            const { content } = req.body;
+            
             const result = await studentModel.createComment({
                 userId,
-                teacherId,
-                comment
+                teacherId: teacherId,
+                content
             });
-
             
+            if (!result.success) {
+                return res.status(500).json({ message: "Ocurrió un error al crear el comentario" })
+            }
+            
+            return res.status(201).json({ data: result.data });
         } catch (error) {
-            
+            return res.status(500).json({ message: "Internal Server Error" });
         }
     }
 } 

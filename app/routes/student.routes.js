@@ -11,7 +11,5 @@ studentRouter.get('/me/retakes', [requireAuth], studentController.getRetakesBySt
 studentRouter.get('/me/teachers', [requireAuth], studentController.getMyTeachers);
 studentRouter.get('/me/teachers-cards', [requireAuth], studentController.getAllTeachersCards);
 studentRouter.post('/:teacherId/vote', [requireAuth], studentController.voteTeacher);
-/* Funcion futura para obtener comentarios */
-// studentRouter.get('/teachers/:id/comments')
-/* Funcion futura para generar comentarios */
-studentRouter.post('/teachers/:id/comments', [requireAuth], studentController);
+studentRouter.get('/teachers/:teacherId/comments', [requireAuth], studentController.getCommentsByTeacher);
+studentRouter.post('/teachers/:teacherId/comments', [requireAuth], studentController.createComment);
