@@ -40,12 +40,11 @@ app.use(corsMiddleware());
 app.disable('x-powered-by');
 
 
-app.use('/api/auth', authRouter);
-// app.use('/users', userRouter);
-app.use('/api/admin', adminRouter);
-app.use('/api/posts', postRouter);
-app.use('/api/students', studentRouter);
-app.use('/api/teachers', teacherRouter);
+app.use('/auth', authRouter);
+app.use('/admin', adminRouter);
+app.use('/posts', postRouter);
+app.use('/students', studentRouter);
+app.use('/teachers', teacherRouter);
 
 server.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
