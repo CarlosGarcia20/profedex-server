@@ -69,10 +69,26 @@ export class studentController {
             return res.status(500).json({ message: "Internal Server Error" });
         }
     }
-    
+
     static async getMyTeachers(req, res) {
         try {
-            const result = await studentModel.getMyTeachers();
+            const userId = req.user.userId;
+
+            const result = await studentModel.getMyTeachers(userId);
+            
+            if (!result.success) {
+                return res.status(404).json({ message: "No tienes maestros asignados" });
+            }
+
+            return res.status(200).json({ data: result.data });
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
+
+    static async getAllTeachersCards(req, res) {
+        try {
+            const result = await studentModel.getAllTeachersCards();
             
             if (!result.success) {
                 return res.status(404).json({ message: "No hay maestros disponibles" });
@@ -83,4 +99,35 @@ export class studentController {
             return res.status(500).json({ message: "Internal Server Error" });
         }
     }
-}
+    
+    static async voteTeacher(req, res) {
+        const { type } = req.body; 
+        const { teacherId } = req.params;
+        const studentId = req.user.userId;
+
+        const value = type === 'up' ? 1 : -1;
+
+        const result = await studentModel.toggleVote({ studentId, masterId: teacherId, value });
+        
+        if (!result.success) return res.status(500).json({ message: "Error al votar" });
+
+        return res.status(200).json({ message: "Voto actualizado" });
+    }
+
+    static async createComment(req, res) {
+        try {
+            const userId = req.user.userId;
+            const { teacherId, comment } = req.body;
+
+            const result = await studentModel.createComment({
+                userId,
+                teacherId,
+                comment
+            });
+
+            
+        } catch (error) {
+            
+        }
+    }
+} 
