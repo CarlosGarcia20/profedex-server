@@ -31,6 +31,14 @@ adminRouter.post('/users/validate-nickname', userController.validateNickname);
 adminRouter.put('/users/:userId', userController.updateDataUser);
 adminRouter.delete('/users/:userId', userController.deleteUser);
 
+/* Maestros */
+adminRouter.get('/teachers', teacherController.getTeachers);
+adminRouter.post('/teachers', adminController.createTeacher);
+adminRouter.put('/teachers/:teacherId', adminController.updateTeacher);
+adminRouter.delete('/teachers/:teacherId', adminController.deleteTeacher);
+adminRouter.get('/unassigned', adminController.getUnassigned);
+adminRouter.post('/teachers/link-user', adminController.assignUserToMaster)
+
 /* Carreras */
 adminRouter.get('/majors', majorController.getMajors);
 adminRouter.get('/majors/:majorId', majorController.getMajorPerId);
@@ -46,8 +54,6 @@ adminRouter.put('/groups/:groupId', groupController.updateGroup);
 adminRouter.delete('/groups/:groupId', groupController.deleteGroup);
 
 adminRouter.get('/classrooms', scheduleController.getClassrooms); 
-
-adminRouter.get('/teachers', teacherController.getTeachers); 
 
 /* Materias */
 adminRouter.get('/subjects', subjectController.getSubjects);
