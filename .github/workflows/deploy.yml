@@ -21,67 +21,16 @@ jobs:
       - name: Sincronizar archivos (Copy)
         uses: easingthemes/ssh-deploy@v5.0.0
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.name: Despliegue Backend Node.js
-
-on:
-  push:
-    branches:
-      - master  # Asegúrate que tu rama principal sea 'master' o 'main'
-
-jobs:
-  deploy-backend:
-    name: Desplegar Backend
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        vm_id: [1, 2]
-
-    steps:
-      - name: Checkout del código
-        uses: actions/checkout@v4
-
-      - name: Sincronizar archivos (Copy)
-        uses: easingthemes/ssh-deploy@v5.0.0
-        with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY_AWS }}
           REMOTE_USER: ${{ secrets.SSH_USER_AWS }}
-
           REMOTE_HOST: ${{ matrix.vm_id == 1 && secrets.SSH_HOST_AWS || secrets.SSH_HOST_2 }}
           
           SOURCE: "./"
           TARGET: "/var/www/profedex-server/"
+          
           EXCLUDE: "/node_modules/, /.git/, /.github/, /.env"
           ARGS: "-rltgoDzvO"
 
-      - name: Instalar y Reiniciar
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ matrix.vm_id == 1 && secrets.SSH_HOST_AWS || secrets.SSH_HOST_2 }}
-          username: ${{ secrets.SSH_USER_AWS }}
-          key: ${{ secrets.SSH_PRIVATE_KEY_AWS }}
-          script: |
-            cd /var/www/profedex-server
-            
-            # 1. Instalar dependencias nuevas
-            pnpm install --prod
-            
-            # 2. Reiniciar el servidor
-            pm2 restart profedex-server || pm2 start index.js --name "profedex-server"
-            
-            # 3. Guardar para que reviva si se apaga la VM
-            pm2 save }}
-          REMOTE_USER: ${{ secrets.SSH_USER_AWS }}
-          
-
-          REMOTE_HOST: ${{ matrix.vm_id == 1 && secrets.SSH_HOST_AWS || secrets.SSH_HOST_2 }}
-          
-          SOURCE: "./"
-          TARGET: "/var/www/profedex-server/"
-          EXCLUDE: "/node_modules/, /.git/, /.github/, /.env"
-          ARGS: "-rltgoDzvO"
-
-      # 2. Instalamos dependencias y reiniciamos PM2
       - name: Instalar y Reiniciar
         uses: appleboy/ssh-action@v1.0.3
         with:
