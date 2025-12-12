@@ -19,47 +19,42 @@ const ROLES = {
 
 export const adminRouter = Router();
 
+adminRouter.use(requireAuth, verifyRole([ROLES.ADMIN]));
+
 /* Roles */
 adminRouter.get('/roles', adminController.getRoles);
 
 /* Usuarios */
-adminRouter.get(
-    '/users', 
-    [
-        requireAuth, 
-        verifyRole([ROLES.ADMIN])
-    ], 
-    userController.getUsers
-);
-adminRouter.post('/users', /* validacion del token */ userController.createUser);
-adminRouter.post('/users/validate-nickname', /* validacion del token */ userController.validateNickname);
-adminRouter.put('/users/:userId', /* validacion del token */ userController.updateDataUser);
-adminRouter.delete('/users/:userId', /* validacion del token */ userController.deleteUser);
+adminRouter.get('/users', userController.getUsers); 
+adminRouter.post('/users', userController.createUser);
+adminRouter.post('/users/validate-nickname', userController.validateNickname);
+adminRouter.put('/users/:userId', userController.updateDataUser);
+adminRouter.delete('/users/:userId', userController.deleteUser);
 
 /* Carreras */
 adminRouter.get('/majors', majorController.getMajors);
 adminRouter.get('/majors/:majorId', majorController.getMajorPerId);
 adminRouter.post('/majors', majorController.createMajor);
 adminRouter.put('/majors/:majorId', majorController.updateMajor);
-adminRouter.delete('/majors/:majorId', majorController.deleteMajor)
+adminRouter.delete('/majors/:majorId', majorController.deleteMajor);
 
 /* Grupos */
 adminRouter.get('/groups', groupController.getGroups);
 adminRouter.get('/groups/:groupId', groupController.getGroupPerId);
 adminRouter.post('/groups', groupController.createGroup);
 adminRouter.put('/groups/:groupId', groupController.updateGroup);
-adminRouter.delete('/groups/:groupId', groupController.deleteGroup)
+adminRouter.delete('/groups/:groupId', groupController.deleteGroup);
 
-adminRouter.get('/classrooms', scheduleController.getClassrooms); // <-- Endpoint temporal
+adminRouter.get('/classrooms', scheduleController.getClassrooms); 
 
-adminRouter.get('/teachers', teacherController.getTeachers); // <-- Endpoint temporal
+adminRouter.get('/teachers', teacherController.getTeachers); 
 
 /* Materias */
 adminRouter.get('/subjects', subjectController.getSubjects);
 adminRouter.get('/subjects/:subjectId', subjectController.getSubjectPerId);
 adminRouter.post('/subjects', subjectController.createSubject);
 adminRouter.put('/subjects/:subjectId', subjectController.updateSubject);
-adminRouter.delete('/subjects/:subjectId', subjectController.deleteSubject)
+adminRouter.delete('/subjects/:subjectId', subjectController.deleteSubject);
 
 /* Unidades */
 adminRouter.get('/units', unitController.getUnits);
