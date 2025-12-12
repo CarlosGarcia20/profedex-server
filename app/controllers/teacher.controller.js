@@ -35,8 +35,6 @@ export class teacherController {
             const userId = req.user.userId;
             
             const result = await teacherModel.getMySchedules(userId);
-            console.log(result);
-            
 
             if (!result.success) return res.status(404).json({ message: "Error al obtener la información" })
 
@@ -52,7 +50,6 @@ export class teacherController {
         const s3Key = req.file ? req.file.key : null;
 
         try {
-
             const eventValidation = validateEvent(req.body);
 
             if (!eventValidation.success) {
@@ -100,16 +97,98 @@ export class teacherController {
             return res.status(500).json({ message: "Internal Server Error" })
         }
     }
+    
+    static async updateEvent(req, res) {
+        const { eventId } = req.params;
+        const userId = req.user.userId;
+        const newImageUrl = req.file ? req.file.location : null;
+        const newS3Key = req.file ? req.file.key : null;
+
+        try {
+            const eventValidation = validateEvent(req.body);
+
+            if (!eventValidation.success) {
+                if (newS3Key) await deleteImageOnError(newS3Key);
+
+                return res.status(400).json({
+                    message: "Datos incorrectos",
+                    errors: eventValidation.error.flatten().fieldErrors
+                });
+            }
+
+            const result = await teacherModel.updateEvent({
+                eventId,
+                userId,
+                name: eventValidation.data.name,
+                description: eventValidation.data.description || null,
+                date: eventValidation.data.date,
+                status: eventValidation.data.status,
+                image: newImageUrl,
+                s3Key: newS3Key,
+            });
+
+            if (!result.success) {
+                if (newS3Key) await deleteImageOnError(newS3Key);
+
+                if (result.type === 'not_found') {
+                    return res.status(404).json({ 
+                        message: "Evento no encontrado o no autorizado" 
+                    });
+                } 
+
+                return res.status(500).json({ message: "Error al actualizar el evento" })
+            }
+
+            if (newS3Key && result.oldS3Key) {
+                deleteImageOnError(result.oldS3Key);
+            }
+            
+            return res.status(200).json({ message: "Evento actualizado con éxito" });
+        } catch (error) {
+            if (newS3Key) await deleteImageOnError(newS3Key);
+            return res.status(500).json({ message: "Internal Server Error" })
+        }
+    }
+
+    static async deleteEvent(req, res) {
+        try {
+            const { eventId } = req.params;
+
+            const result = await teacherModel.deleteEvent(eventId);
+
+            if (!result.success) {
+                if (result.type === 'not_found') {
+                    return res.status(404).json({ message: "El evento no existe" });
+                }
+
+                return res.status(500).json({ message: "Error al procesar el evento" });
+            }
+
+            if (result.action === 'disabled') {
+                return res.status(200).json({ 
+                    message: "El evento se ha desactivado" 
+                });
+            }
+
+            if (result.s3Key) {
+                deleteImageOnError(result.s3Key);
+            }
+
+            return res.sendStatus(204);
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
 }
 
-const deleteImageOnError = async (s3Key) => {
+export const deleteImageOnError = async (s3Key) => {
     if (!s3Key) return;
     try {
         await s3.send(new DeleteObjectCommand({
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: s3Key
         }));
-        console.log(`🗑️ Imagen eliminada de S3 por error en transacción: ${s3Key}`);
+        console.log(`Imagen eliminada de S3: ${s3Key}`);
     } catch (err) {
         console.error("Error crítico: No se pudo borrar la imagen huérfana de S3", err);
     }

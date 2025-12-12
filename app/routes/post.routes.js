@@ -26,3 +26,6 @@ postRouter.patch(
     ], 
     postController.uploadProfilePicture
 )
+
+postRouter.get('/events', requireAuth, postController.getAllActiveEvents)
+postRouter.delete('/me/images/:imageId', requireAuth, postController.deleteUserImage)

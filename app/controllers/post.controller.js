@@ -3,6 +3,7 @@ import { s3 } from '../middlewares/uploadMiddleware.js';
 import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { postModel } from '../models/post.model.js';
 import 'dotenv/config';
+import { deleteImageOnError } from './teacher.controller.js';
 
 export class postController {
     static async createPost(req, res) {
@@ -10,6 +11,7 @@ export class postController {
 
         const { key: s3Key, location: imageUrl } = req.file;
         const userId = req.user.userId;
+        const eventId = req.body.event_id;
 
         try {
             const moderation = await checkContentSafety(process.env.AWS_BUCKET_NAME, s3Key);
@@ -24,7 +26,7 @@ export class postController {
                 });
             }
 
-            const result = await postModel.createPost({ userId, imageUrl, s3Key });
+            const result = await postModel.createPost({ userId, imageUrl, s3Key, eventId });
 
             if (!result.success) {
                 return res.status(500).json({ message: "Error al guardar en BD" });
@@ -100,6 +102,41 @@ export class postController {
                 url: result.newUrl 
             });
 
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
+    
+    static async getAllActiveEvents(req, res) {
+        try {
+            const result = await postModel.getAllActiveEvents();
+
+            if(!result.success) {
+                return res.status(404).json({ message: "No hay eventos disponibles" });
+            }
+
+            return res.status(200).json({ data: result.data });
+        } catch (error) {
+            return res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
+    
+    static async deleteUserImage(req, res) {
+        try {
+            const userId = req.user.userId;
+            const { imageId } = req.params;
+
+            const result = await postModel.deleteUserImage({ imageId, userId });
+
+            if (!result.success) {
+                return res.status(404).json({ message: "Error al eliminar la foto" });
+            }
+
+            if (result.data) {
+                deleteImageOnError(result.data);
+            }
+
+            res.sendStatus(204);
         } catch (error) {
             return res.status(500).json({ message: "Internal Server Error" });
         }
