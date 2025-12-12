@@ -1,13 +1,13 @@
 import pool from "../config/db.js";
 
 export class postModel {
-    static async createPost({ userId, imageUrl, s3Key }) {
+    static async createPost({ userId, imageUrl, s3Key, eventId }) {
         try {
             const { rows } = await pool.query(
-                `INSERT INTO user_images (user_id, image_url, s3_key) 
-                 VALUES ($1, $2, $3) 
+                `INSERT INTO user_images (user_id, image_url, s3_key, event_id) 
+                 VALUES ($1, $2, $3, $4) 
                  RETURNING *`,
-                [userId, imageUrl, s3Key]
+                [userId, imageUrl, s3Key, eventId]
             );
 
             if (rows.length > 0) {
@@ -27,6 +27,7 @@ export class postModel {
                     user_images.id,
                     user_images.image_url,
                     user_images.created_at,
+                    user_images.event_id,
                     users.name,
                     users.nickname
                 FROM user_images
@@ -47,6 +48,7 @@ export class postModel {
                     user_images.id,
                     user_images.image_url,
                     user_images.created_at,
+                    user_images.event_id,
                     users.name,
                     users.nickname
                 FROM user_images
@@ -105,6 +107,23 @@ export class postModel {
             return { success: true, data: rows }
         } catch (error) {
             return { success: false, error };
+        }
+    }
+
+    static async deleteUserImage({ imageId, userId }) {
+        try {
+            const { rows, rowCount } = await pool.query(
+                `DELETE FROM user_images
+                WHERE id = $1 AND user_id = $2
+                RETURNING s3_key`,
+                [ imageId, userId ]
+            );
+
+            if (rowCount == 0) return { success: false }
+
+            return { success: true, data: rows[0].s3_key }
+        } catch (error) {
+            return { success: false, error }
         }
     }
 }
