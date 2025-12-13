@@ -30,7 +30,7 @@ const server = http.createServer(app);
 // pubClient.on('error', (err) => console.error('Redis Pub Error:', err));
 // subClient.on('error', (err) => console.error('Redis Sub Error:', err));
 
-await Promise.all([pubClient.connect(), subClient.connect()]);
+// await Promise.all([pubClient.connect(), subClient.connect()]);
 
 const io = new SocketServer(server, {
     cors: {
