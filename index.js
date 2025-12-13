@@ -6,8 +6,8 @@ import cookieParser from "cookie-parser";
 import { PORT } from "./app/config/config.js";
 import locationSocket from "./app/sockets/locationSocket.js";
 
-import { createClient } from 'redis';
-import { createAdapter } from '@socket.io/redis-adapter';
+// import { createClient } from 'redis';
+// import { createAdapter } from '@socket.io/redis-adapter';
 
 // Rutas
 import { authRouter } from "./app/routes/auth.routes.js";
