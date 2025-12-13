@@ -24,11 +24,11 @@ import { verifySocketToken } from "./app/middlewares/socketAuth.js";
 const app = express();
 const server = http.createServer(app);
 
-const pubClient = createClient({ url: process.env.REDIS_URL || 'redis://localhost:6379' });
-const subClient = pubClient.duplicate();
+// const pubClient = createClient({ url: process.env.REDIS_URL || 'redis://localhost:6379' });
+// const subClient = pubClient.duplicate();
 
-pubClient.on('error', (err) => console.error('Redis Pub Error:', err));
-subClient.on('error', (err) => console.error('Redis Sub Error:', err));
+// pubClient.on('error', (err) => console.error('Redis Pub Error:', err));
+// subClient.on('error', (err) => console.error('Redis Sub Error:', err));
 
 await Promise.all([pubClient.connect(), subClient.connect()]);
 
@@ -37,8 +37,8 @@ const io = new SocketServer(server, {
         origin: process.env.FRONTEND_URL || "http://localhost:5173",
         methods: ["GET", "POST"],
         credentials: true
-    },
-    adapter: createAdapter(pubClient, subClient)
+    } //,
+    // adapter: createAdapter(pubClient, subClient)
 });
 
 io.use(verifySocketToken)
