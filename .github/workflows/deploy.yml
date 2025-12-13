@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        vm_id: [1, 2]
+        vm_id: [2]
 
     steps:
       - name: Checkout del código
